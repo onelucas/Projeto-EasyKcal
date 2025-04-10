@@ -1,74 +1,59 @@
 <?php
 include('conexao.php');
 
-// Cadastro Process
-if (isset($_POST['email_cadastro']) || isset($_POST['senha_cadastro']) || isset($_POST['nome_cadastro'])) {
-    if (strlen($_POST['email_cadastro']) == 0 || strlen($_POST['senha_cadastro']) == 0 || strlen($_POST['nome_cadastro']) == 0) {
-        echo "Preencha todos os campos para cadastro!";
+if (isset($_POST['nome']) && isset($_POST['email']) && isset($_POST['senha'])) {
+    $nome = $mysqli->real_escape_string($_POST['nome']);
+    $email = $mysqli->real_escape_string($_POST['email']);
+    $senha = password_hash($_POST['senha'], PASSWORD_DEFAULT);
+
+    $verifica = $mysqli->query("SELECT * FROM usuario WHERE email = '$email'");
+    if ($verifica->num_rows > 0) {
+        $erro = "E-mail já cadastrado!";
     } else {
-        $nome = $mysqli->real_escape_string($_POST['nome_cadastro']);
-        $email_cadastro = $mysqli->real_escape_string($_POST['email_cadastro']);
-        $senha_cadastro = $_POST['senha_cadastro'];
-
-        // Criptografar a senha
-        $senha_criptografada = password_hash($senha_cadastro, PASSWORD_DEFAULT);
-
-        // Verificar se o email já está cadastrado
-        $sql_check = "SELECT * FROM usuarios WHERE email = '$email_cadastro'";
-        $sql_check_query = $mysqli->query($sql_check);
-
-        if ($sql_check_query->num_rows > 0) {
-            echo "E-mail já cadastrado. Tente outro e-mail.";
+        $sql = "INSERT INTO usuario (nome_usuario, email, senha, meta) VALUES ('$nome', '$email', '$senha', 2000)";
+        if ($mysqli->query($sql)) {
+            header("Location: index.php");
+            exit;
         } else {
-            // Inserir novo usuário com senha criptografada
-            $sql_insert = "INSERT INTO usuarios (nome, email, senha) VALUES ('$nome', '$email_cadastro', '$senha_criptografada')";
-            if ($mysqli->query($sql_insert)) {
-                echo "Cadastro realizado com sucesso!";
-                echo "<br><a href='index.php'>Clique aqui para fazer login</a>";
-            } else {
-                echo "Erro ao cadastrar: " . $mysqli->error;
-            }
+            $erro = "Erro ao cadastrar: " . $mysqli->error;
         }
     }
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro</title>
+    <title>Cadastro - EasyKcal</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-    <h1>Cadastre-se</h1>
+    <div class="logo-fixed-top-right">
+        <img src="/easykcal/assets/img/logo_easykcal.png" alt="Logo EasyKcal" style="max-width: 200px;">
+    </div>
+    <div class="login-container">
+        <h2>Cadastro 📝</h2>
+        <p class="subtitle">Crie sua conta gratuita</p>
 
-    <!-- Cadastro Form -->
-    <form action="" method="POST">
-        <p>
+        <?php if (!empty($erro)): ?>
+            <div class="error"><?php echo $erro; ?></div>
+        <?php endif; ?>
+
+        <form method="POST">
             <label>Nome</label>
-            <input type="text" name="nome_cadastro">
-        </p>
-        <p>
-            <label>E-mail</label>
-            <input type="text" name="email_cadastro">
-        </p>
-        <p>
+            <input type="text" name="nome" required>
+
+            <label>Email</label>
+            <input type="email" name="email" required>
+
             <label>Senha</label>
-            <input type="password" name="senha_cadastro">
-        </p>
-        <p>
+            <input type="password" name="senha" required>
+
             <button type="submit">Cadastrar</button>
-        </p>
-    </form>
+        </form>
 
-    <hr>
-
-    
-    <p>Já tem uma conta? <a href="index.php">Faça login</a></p>
+        <p class="register-link">Já tem uma conta? <a href="index.php">Faça login</a></p>
+    </div>
 </body>
-
 </html>

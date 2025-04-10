@@ -2,71 +2,64 @@
 session_start();
 include('conexao.php');
 
-// Login Process
-if (isset($_POST['email']) || isset($_POST['senha'])) {
-    if (strlen($_POST['email']) == 0) {
-        echo "Preencha seu e-mail";
-    } else if (strlen($_POST['senha']) == 0) {
-        echo "Preencha sua senha";
+// Lógica de login
+if (isset($_POST['email']) && isset($_POST['senha'])) {
+    if (empty($_POST['email'])) {
+        $erro = "Preencha seu e-mail";
+    } elseif (empty($_POST['senha'])) {
+        $erro = "Preencha sua senha";
     } else {
         $email = $mysqli->real_escape_string($_POST['email']);
         $senha = $_POST['senha'];
 
-        $sql_code = "SELECT * FROM usuarios WHERE email = '$email'";
-        $sql_query = $mysqli->query($sql_code) or die("Falha na execução do código SQL: " . $mysqli->error);
+        $sql_code = "SELECT * FROM usuario WHERE email = '$email'";
+        $sql_query = $mysqli->query($sql_code) or die("Erro: " . $mysqli->error);
 
-        $quantidade = $sql_query->num_rows;
-
-        if ($quantidade == 1) {
+        if ($sql_query->num_rows == 1) {
             $usuario = $sql_query->fetch_assoc();
 
-            // Verificar se a senha fornecida é válida
             if (password_verify($senha, $usuario['senha'])) {
-                $_SESSION['user'] = $usuario['id'];
-                $_SESSION['nome'] = $usuario['nome'];
+                $_SESSION['user'] = $usuario['idusuario'];
+                $_SESSION['nome_usuario'] = $usuario['nome_usuario'];
 
                 header("Location: painel.php");
+                exit;
             } else {
-                echo "Falha ao logar! E-mail ou senha incorretos";
+                $erro = "Senha incorreta";
             }
         } else {
-            echo "Falha ao logar! E-mail ou senha incorretos";
+            $erro = "E-mail não encontrado";
         }
     }
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
 
+<!DOCTYPE html>
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login - EasyKcal</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-    <h1>Acesse sua conta</h1>
+<div class="login-container">
+    <img src="/easykcal/assets/img/logo_easykcal.png" alt="Logo EasyKcal" style="max-width: 200px; margin-bottom: 0px;">
 
-    <!-- Login Form -->
-    <form action="" method="POST">
-        <p>
-            <label>E-mail</label>
-            <input type="text" name="email">
-        </p>
-        <p>
-            <label>Senha</label>
-            <input type="password" name="senha">
-        </p>
-        <p>
-            <button type="submit">Entrar</button>
-        </p>
+    <p class="subtitle">Acesse sua conta</p>
+
+    <?php if (!empty($erro)): ?>
+        <div class="error"><?php echo $erro; ?></div>
+    <?php endif; ?>
+
+    <form method="POST">
+        <label>Email</label>
+        <input type="text" name="email" placeholder="exemplo@email.com" required>
+
+        <label>Senha</label>
+        <input type="password" name="senha" placeholder="Digite sua senha" required>
+
+        <button type="submit">Entrar</button>
     </form>
 
-    <hr>
-
-    <!-- Link to the Register (Cadastro) page -->
-    <p>Não tem uma conta? <a href="cadastro.php">Cadastre-se</a></p>
-</body>
-
-</html>
+    <p class="register-link">Não tem uma conta? <a href="cadastro.php">Cadastre-se</a></p>
+</div>
