@@ -2,7 +2,7 @@
 session_start();
 include('conexao.php');
 
-// Lógica de login
+
 if (isset($_POST['email']) && isset($_POST['senha'])) {
     if (empty($_POST['email'])) {
         $erro = "Preencha seu e-mail";
