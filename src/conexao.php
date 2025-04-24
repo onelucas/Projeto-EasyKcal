@@ -5,8 +5,8 @@ $senha = '';
 $database = 'dbeasykcal';
 $host = 'localhost';
 
-$mysqli = new mysqli($host, $usuario, $senha, $database, /*3316*/);
+$conn = new mysqli($host, $usuario, $senha, $database, /*3316*/);
 
-if($mysqli->error) {
+if($conn->connect_error) {
     die("Falha ao conectar ao banco de dados: " . $mysqli->error);
 }

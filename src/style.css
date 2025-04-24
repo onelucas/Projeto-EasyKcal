@@ -15,7 +15,7 @@ body {
     color: white;
 }
 
-/* Logo fixa no canto superior direito */
+
 .logo-fixed-top-right {
     position: fixed;
     top: 0;
@@ -113,7 +113,7 @@ button:hover {
     margin-bottom: 15px;
 }
 
-/* Painel específico */
+
 .painel-links {
     margin-top: 30px;
     display: flex;
@@ -140,4 +140,66 @@ button:hover {
 }
 .logout:hover {
     background-color: #8e0000;
+}
+
+.meta-container {
+    max-width: 500px;
+    margin: 60px auto 0;
+    text-align: center;
+    background-color: #1f1f1f;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+    border: 1px solid #333;
+}
+
+.meta-container h1 {
+    font-size: 32px;
+    margin-bottom: 30px;
+    color: #66bb6a;
+}
+
+.meta-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.meta-container .meta-atual {
+    margin-top: 30px;
+}
+
+.valor-meta-destaque {
+    background-color: #2e7d32;
+    padding: 20px 30px;
+    border-radius: 20px;
+    font-size: 32px;
+    font-weight: bold;
+    color: #fff;
+    display: inline-block;
+    margin-top: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.meta-container .mensagem-sucesso,
+.meta-container .mensagem-erro {
+    margin-top: 20px;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.meta-container .mensagem-sucesso {
+    background-color: #43a047;
+}
+
+.meta-container .mensagem-erro {
+    background-color: #e53935;
+}
+
+.logo-top-center {
+    display: block;
+    margin: 20px auto 0;
+    max-width: 120px;
 }

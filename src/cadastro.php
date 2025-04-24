@@ -2,20 +2,20 @@
 include('conexao.php');
 
 if (isset($_POST['nome']) && isset($_POST['email']) && isset($_POST['senha'])) {
-    $nome = $mysqli->real_escape_string($_POST['nome']);
-    $email = $mysqli->real_escape_string($_POST['email']);
+    $nome = $conn->real_escape_string($_POST['nome']);
+    $email = $conn->real_escape_string($_POST['email']);
     $senha = password_hash($_POST['senha'], PASSWORD_DEFAULT);
 
-    $verifica = $mysqli->query("SELECT * FROM usuario WHERE email = '$email'");
+    $verifica = $conn->query("SELECT * FROM usuario WHERE email = '$email'");
     if ($verifica->num_rows > 0) {
         $erro = "E-mail já cadastrado!";
     } else {
-        $sql = "INSERT INTO usuario (nome_usuario, email, senha, meta) VALUES ('$nome', '$email', '$senha', 2000)";
-        if ($mysqli->query($sql)) {
+        $sql = "INSERT INTO usuario (nome_usuario, email, senha, meta) VALUES ('$nome', '$email', '$senha', 0)";
+        if ($conn->query($sql)) {
             header("Location: index.php");
             exit;
         } else {
-            $erro = "Erro ao cadastrar: " . $mysqli->error;
+            $erro = "Erro ao cadastrar: " . $conn->error;
         }
     }
 }

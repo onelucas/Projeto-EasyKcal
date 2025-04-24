@@ -9,17 +9,17 @@ if (isset($_POST['email']) && isset($_POST['senha'])) {
     } elseif (empty($_POST['senha'])) {
         $erro = "Preencha sua senha";
     } else {
-        $email = $mysqli->real_escape_string($_POST['email']);
+        $email = $conn->real_escape_string($_POST['email']);
         $senha = $_POST['senha'];
 
         $sql_code = "SELECT * FROM usuario WHERE email = '$email'";
-        $sql_query = $mysqli->query($sql_code) or die("Erro: " . $mysqli->error);
+        $sql_query = $conn->query($sql_code) or die("Erro: " . $mysqli->error);
 
         if ($sql_query->num_rows == 1) {
             $usuario = $sql_query->fetch_assoc();
 
             if (password_verify($senha, $usuario['senha'])) {
-                $_SESSION['user'] = $usuario['idusuario'];
+                $_SESSION['idusuario'] = $usuario['idusuario'];
                 $_SESSION['nome_usuario'] = $usuario['nome_usuario'];
 
                 header("Location: painel.php");
