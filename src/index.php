@@ -43,7 +43,7 @@ if (isset($_POST['email']) && isset($_POST['senha'])) {
 </head>
 <body>
 <div class="login-container">
-    <img src="/easykcal/assets/img/logo_easykcal.png" alt="Logo EasyKcal" style="max-width: 200px; margin-bottom: 0px;">
+    <img src="/easykcal/assets/img/logo_easykcal.png" alt="Logo do APP" style="max-width: 200px; margin-bottom: 0px;">
 
     <p class="subtitle">Acesse sua conta</p>
 
@@ -61,5 +61,5 @@ if (isset($_POST['email']) && isset($_POST['senha'])) {
         <button type="submit">Entrar</button>
     </form>
 
-    <p class="register-link">Não tem uma conta? <a href="cadastro.php">Cadastre-se</a></p>
+    <p class="register-link">Não tem uma conta? <a href="cadastrarUsuario.php">Cadastre-se</a></p>
 </div>

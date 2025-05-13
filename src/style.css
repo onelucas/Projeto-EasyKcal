@@ -1,9 +1,12 @@
+
+/* Reset margens, preenchimentos */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* Corpo da página: centraliza, fundo escuro e fonte */
 body {
     background: linear-gradient(135deg, #1a1a1a, #2a2a2a); /* Preto fosco degradê */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -15,7 +18,8 @@ body {
     color: white;
 }
 
-
+/* index.php e cadastro.php  */
+/* Logo */
 .logo-fixed-top-right {
     position: fixed;
     top: 0;
@@ -28,6 +32,8 @@ body {
     height: auto;
 }
 
+/*  USADO EM index.php, cadastro.php e painel.php  */
+/* formulário de login e painel */
 .login-container, .painel-container {
     background-color: #1f1f1f;
     padding: 40px;
@@ -40,9 +46,11 @@ body {
     border: 1px solid #333;
 }
 
+
 .login-container:hover, .painel-container:hover {
     transform: translateY(-2px);
 }
+
 
 .login-container h2,
 .painel-container h2 {
@@ -50,17 +58,21 @@ body {
     color: #66bb6a; 
 }
 
+
 .subtitle {
     margin-bottom: 20px;
     color: #ccc;
 }
 
+/* FORMULÁRIOS -  index.php, cadastro.php e painel.php */
+/* Layout dos formulários */
 form {
     display: flex;
     flex-direction: column;
     gap: 15px;
 }
 
+/* Campos de input */
 input {
     padding: 12px;
     background-color: #2b2b2b;
@@ -78,6 +90,8 @@ input:focus {
     background-color: #333;
 }
 
+/*  BOTÕES - TODAS AS PÁGINAS COM FORMULÁRIO  */
+/* Botões de ação (login, cadastrar, enviar meta etc.) */
 button {
     background-color: #66bb6a;
     color: white;
@@ -93,17 +107,20 @@ button:hover {
     background-color: #388e3c;
 }
 
+/*  index.php e cadastro.php  */
+/* Texto com link para cadastro/login */
 .register-link {
     margin-top: 15px;
     color: #aaa;
 }
-
 .register-link a {
     color: #81c784;
     text-decoration: none;
     font-weight: bold;
 }
 
+/* USADO EM TODAS AS PÁGINAS COM FORMULÁRIO  */
+/* Estilo de mensagens de erro */
 .error {
     background-color: #ffebee;
     border: 1px solid #f44336;
@@ -113,7 +130,8 @@ button:hover {
     margin-bottom: 15px;
 }
 
-
+/* USADO EM painel.php  */
+/* Links e botões dentro do painel */
 .painel-links {
     margin-top: 30px;
     display: flex;
@@ -121,6 +139,7 @@ button:hover {
     gap: 15px;
 }
 
+/* Botão estilizado */
 .btn {
     display: inline-block;
     background-color: #66bb6a;
@@ -135,6 +154,7 @@ button:hover {
     background-color: #388e3c;
 }
 
+/* Botão de logout */
 .logout {
     background-color: #c62828;
 }
@@ -142,6 +162,8 @@ button:hover {
     background-color: #8e0000;
 }
 
+/* USADO EM painel.php (metas)  */
+/* exibe informações da meta */
 .meta-container {
     max-width: 500px;
     margin: 60px auto 0;
@@ -153,9 +175,10 @@ button:hover {
     border: 1px solid #333;
 }
 
+/* Título da seção de metas */
 .meta-container h1 {
-    font-size: 32px;
-    margin-bottom: 30px;
+    font-size: 28px;
+    margin-bottom: 20px;
     color: #66bb6a;
 }
 
@@ -163,31 +186,33 @@ button:hover {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    padding: 15px;
 }
 
 .meta-container .meta-atual {
-    margin-top: 30px;
+    margin-top: 20px;
 }
 
 .valor-meta-destaque {
     background-color: #2e7d32;
-    padding: 20px 30px;
-    border-radius: 20px;
-    font-size: 32px;
+    padding: 15px 20px;
+    border-radius: 15px;
+    font-size: 28px;
     font-weight: bold;
     color: #fff;
     display: inline-block;
-    margin-top: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    margin-top: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .meta-container .mensagem-sucesso,
 .meta-container .mensagem-erro {
     margin-top: 20px;
-    padding: 12px;
+    padding: 15px;
     border-radius: 10px;
     font-weight: bold;
     color: #fff;
+    font-size: 16px;
 }
 
 .meta-container .mensagem-sucesso {
@@ -198,8 +223,34 @@ button:hover {
     background-color: #e53935;
 }
 
-.logo-top-center {
-    display: block;
-    margin: 20px auto 0;
-    max-width: 120px;
+@media (max-width: 600px) {
+    .meta-container {
+        padding: 20px;
+        max-width: 90%;
+    }
+
+    .meta-container h1 {
+        font-size: 24px;
+    }
+
+    .valor-meta-destaque {
+        font-size: 24px;
+        padding: 15px;
+    }
+}
+
+
+/* painel.php ou index.php (logo)  */
+/* Logo no topo */
+.logo-fixed-top-right {
+    position: fixed;
+    top: 0;
+    right: 0;
+    padding: 0px;
+    z-index: 1000;
+}
+
+.logo-fixed-top-right img {
+    max-width: 200px;  
+    height: auto;  
 }

@@ -53,25 +53,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $usuario_id > 0) {
     <link rel="stylesheet" href="style.css">
 </head>
 
-    <form method="post">
-        <label for="calorias">Defina a sua meta de calorias diárias:</label>
-        <input type="number" name="calorias" id="calorias" required min="1" placeholder="Ex: 2200">
-        <button type="submit">Salvar</button>
-    </form>
+    <?php include 'header.php'; ?>
 
-    <div class="meta-atual">
-        <?php if ($meta_calorias !== null) : ?>
-            <div class="valor-meta-destaque">
-                <?= htmlspecialchars($meta_calorias) ?> calorias/dia
-            </div>
-        <?php else: ?>
-            <p>Você ainda não definiu uma meta.</p>
+    <div class="meta-container">
+        <form method="post">
+            <label for="calorias">Defina a sua meta de calorias diárias:</label>
+            <input type="number" name="calorias" id="calorias" required min="1" placeholder="Ex: 2200">
+            <button type="submit">Salvar</button>
+        </form>
+
+        <div class="meta-atual">
+            <?php if ($meta_calorias !== null) : ?>
+                <div class="valor-meta-destaque">
+                    <?= htmlspecialchars($meta_calorias) ?> calorias/dia
+                </div>
+            <?php else: ?>
+                <p>Você ainda não definiu uma meta.</p>
+            <?php endif; ?>
+        </div>
+
+        <?php if (!empty($mensagem_erro)): ?>
+            <div class="mensagem-erro"><?=$mensagem_erro ?></div>
+        <?php elseif (!empty($mensagem_sucesso)): ?>
+            <div class="mensagem-sucesso"><?=$mensagem_sucesso ?></div>
         <?php endif; ?>
     </div>
-
-    <?php if (!empty($mensagem_erro)): ?>
-        <div class="mensagem-erro"><?=$mensagem_erro ?></div>
-    <?php elseif (!empty($mensagem_sucesso)): ?>
-        <div class="mensagem-sucesso"><?=$mensagem_sucesso ?></div>
-    <?php endif; ?>
-</div>
+    
+</html>

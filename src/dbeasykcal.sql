@@ -28,7 +28,7 @@ USE dbeasykcal;
 -- Estrutura para tabela `alimentos`
 --
 
-CREATE TABLE `alimentos` (
+CREATE TABLE IF NOT EXISTS `alimentos` (
   `idalimentos` INT(11) NOT NULL AUTO_INCREMENT,
   `nome_alimento` VARCHAR(100) NOT NULL,
   `qtd_kcal` FLOAT NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE `alimentos` (
 -- Estrutura para tabela `usuario`
 --
 
-CREATE TABLE `usuario` (
+CREATE TABLE IF NOT EXISTS `usuario` (
   `idusuario` INT(11) NOT NULL AUTO_INCREMENT,
   `nome_usuario` VARCHAR(50) NOT NULL,
   `email` VARCHAR(100) NOT NULL,
@@ -56,16 +56,37 @@ CREATE TABLE `usuario` (
 -- Estrutura para tabela `refeicao`
 --
 
-CREATE TABLE `refeicao` (
+CREATE TABLE IF NOT EXISTS `refeicao` (
   `idrefeicao` INT(11) NOT NULL AUTO_INCREMENT,
   `qtd_alimentos` INT(11) NOT NULL,
+  `tipo_refeicao` ENUM('cafe_da_manha','almoco', 'janta', 'lanche') NOT NULL,
+  `data_refeicao` DATE NOT NULL,
   `usuario_idusuario` INT(11) NOT NULL,
-  `alimentos_idalimentos` INT(11) NOT NULL,
   PRIMARY KEY (`idrefeicao`),
-  KEY `fk_refeicao_usuario_idx` (`usuario_idusuario`),
-  KEY `fk_refeicao_alimentos1_idx` (`alimentos_idalimentos`),
-  CONSTRAINT `fk_refeicao_usuario` FOREIGN KEY (`usuario_idusuario`) REFERENCES `usuario` (`idusuario`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_refeicao_alimentos1` FOREIGN KEY (`alimentos_idalimentos`) REFERENCES `alimentos` (`idalimentos`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  FOREIGN KEY (usuario_idusuario) REFERENCES usuario(idusuario)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `refeicao_alimento` (
+  id INT NOT NULL AUTO_INCREMENT,
+  refeicao_idrefeicao INT NOT NULL,
+  idalimentos INT NOT NULL,
+  quantidade INT NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (refeicao_idrefeicao) REFERENCES refeicao(idrefeicao)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY alimentos(idalimentos) REFERENCES alimentos(idalimentos)
+    ON DELETE CASCADE ON UPDATE CASCADE
+)  ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+  CREATE TABLE IF NOT EXISTS calorias_diarias (
+    id INT NOT NULL AUTO_INCREMENT,
+    usuario_idusuario INT NOT NULL,
+    data_registro DATE NOT NULL,
+    total_kcal FLOAT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (usuario_idusuario) REFERENCES usuario(idusuario)
+      ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 COMMIT;

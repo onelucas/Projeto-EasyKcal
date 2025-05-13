@@ -29,6 +29,9 @@ if (isset($_POST['nome']) && isset($_POST['email']) && isset($_POST['senha'])) {
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    
+    <?php include 'header.php'; ?>
+    
     <div class="logo-fixed-top-right">
         <img src="/easykcal/assets/img/logo_easykcal.png" alt="Logo EasyKcal" style="max-width: 200px;">
     </div>
