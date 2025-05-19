@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3316
--- Generation Time: May 19, 2025 at 05:11 PM
+-- Generation Time: May 19, 2025 at 07:00 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -163,23 +163,12 @@ CREATE TABLE `calorias_diarias` (
 
 CREATE TABLE `refeicao` (
   `idrefeicao` int(11) NOT NULL,
-  `qtd_alimentos` int(11) NOT NULL,
-  `tipo_refeicao` enum('cafe_da_manha','almoco','janta','lanche') NOT NULL,
+  `usuario_idusuario` int(11) NOT NULL,
   `data_refeicao` date NOT NULL,
-  `usuario_idusuario` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `refeicao_alimento`
---
-
-CREATE TABLE `refeicao_alimento` (
-  `id` int(11) NOT NULL,
-  `refeicao_idrefeicao` int(11) NOT NULL,
-  `idalimentos` int(11) NOT NULL,
-  `quantidade` int(11) NOT NULL
+  `tipo_refeicao` enum('cafe_da_manha','almoco','janta','lanche') NOT NULL,
+  `idalimento` int(11) NOT NULL,
+  `quantidade` float NOT NULL,
+  `kcal_total` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 -- --------------------------------------------------------
@@ -201,7 +190,7 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`idusuario`, `nome_usuario`, `email`, `senha`, `meta`) VALUES
-(1, 'lucas', 'lucas@gmail.com', '$2y$10$rTCFAcre7TkDwqrp1BqqO.5vOQuGaiDJwC3Wy66NZzY92hiNrqSC2', 0);
+(1, 'lucas', 'lucas@gmail.com', '$2y$10$rTCFAcre7TkDwqrp1BqqO.5vOQuGaiDJwC3Wy66NZzY92hiNrqSC2', 1500);
 
 --
 -- Indexes for dumped tables
@@ -218,22 +207,15 @@ ALTER TABLE `alimentos`
 --
 ALTER TABLE `calorias_diarias`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `usuario_idusuario` (`usuario_idusuario`);
+  ADD KEY `idx_calorias_usuario` (`usuario_idusuario`);
 
 --
 -- Indexes for table `refeicao`
 --
 ALTER TABLE `refeicao`
   ADD PRIMARY KEY (`idrefeicao`),
-  ADD KEY `usuario_idusuario` (`usuario_idusuario`);
-
---
--- Indexes for table `refeicao_alimento`
---
-ALTER TABLE `refeicao_alimento`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `refeicao_idrefeicao` (`refeicao_idrefeicao`),
-  ADD KEY `alimentos` (`idalimentos`);
+  ADD KEY `idx_refeicao_usuario` (`usuario_idusuario`),
+  ADD KEY `fk_refeicao_alimento` (`idalimento`);
 
 --
 -- Indexes for table `usuario`
@@ -264,12 +246,6 @@ ALTER TABLE `refeicao`
   MODIFY `idrefeicao` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `refeicao_alimento`
---
-ALTER TABLE `refeicao_alimento`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `usuario`
 --
 ALTER TABLE `usuario`
@@ -283,20 +259,16 @@ ALTER TABLE `usuario`
 -- Constraints for table `calorias_diarias`
 --
 ALTER TABLE `calorias_diarias`
-  ADD CONSTRAINT `calorias_diarias_ibfk_1` FOREIGN KEY (`usuario_idusuario`) REFERENCES `usuario` (`idusuario`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `calorias_diarias_ibfk_1` FOREIGN KEY (`usuario_idusuario`) REFERENCES `usuario` (`idusuario`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_calorias_diarias_usuario` FOREIGN KEY (`usuario_idusuario`) REFERENCES `usuario` (`idusuario`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `refeicao`
 --
 ALTER TABLE `refeicao`
+  ADD CONSTRAINT `fk_refeicao_alimento` FOREIGN KEY (`idalimento`) REFERENCES `alimentos` (`idalimentos`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_refeicao_usuario` FOREIGN KEY (`usuario_idusuario`) REFERENCES `usuario` (`idusuario`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `refeicao_ibfk_1` FOREIGN KEY (`usuario_idusuario`) REFERENCES `usuario` (`idusuario`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `refeicao_alimento`
---
-ALTER TABLE `refeicao_alimento`
-  ADD CONSTRAINT `alimentos` FOREIGN KEY (`idalimentos`) REFERENCES `alimentos` (`idalimentos`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `refeicao_alimento_ibfk_1` FOREIGN KEY (`refeicao_idrefeicao`) REFERENCES `refeicao` (`idrefeicao`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
