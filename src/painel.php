@@ -21,6 +21,7 @@ include('protect.php');
             <a href="definirMeta.php" class="btn">Meta de calorias ✔️</a>
             <a href="cadastrarAlimentos.php" class="btn">Alimentos 🥗</a>
             <a href="editarRefeicao.php" class="btn">Minhas Refeições 🍽️</a>
+            <a href="consultarHistorico.php" class="btn"> Histórico 📖 </a>
             <a href="logout.php" class="btn logout">Sair 🚪</a>
         </div>
     </div>
