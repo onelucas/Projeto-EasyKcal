@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3316
--- Generation Time: May 19, 2025 at 07:00 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Tempo de geração: 22-Maio-2025 às 22:21
+-- Versão do servidor: 10.4.32-MariaDB
+-- versão do PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `dbeasykcal`
+-- Banco de dados: `dbeasykcal`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `alimentos`
+-- Estrutura da tabela `alimentos`
 --
 
 CREATE TABLE `alimentos` (
@@ -34,7 +34,7 @@ CREATE TABLE `alimentos` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
--- Dumping data for table `alimentos`
+-- Extraindo dados da tabela `alimentos`
 --
 
 INSERT INTO `alimentos` (`idalimentos`, `nome_alimento`, `qtd_kcal`) VALUES
@@ -145,7 +145,7 @@ INSERT INTO `alimentos` (`idalimentos`, `nome_alimento`, `qtd_kcal`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `calorias_diarias`
+-- Estrutura da tabela `calorias_diarias`
 --
 
 CREATE TABLE `calorias_diarias` (
@@ -158,7 +158,7 @@ CREATE TABLE `calorias_diarias` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `refeicao`
+-- Estrutura da tabela `refeicao`
 --
 
 CREATE TABLE `refeicao` (
@@ -171,10 +171,17 @@ CREATE TABLE `refeicao` (
   `kcal_total` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
+--
+-- Extraindo dados da tabela `refeicao`
+--
+
+INSERT INTO `refeicao` (`idrefeicao`, `usuario_idusuario`, `data_refeicao`, `tipo_refeicao`, `idalimento`, `quantidade`, `kcal_total`) VALUES
+(6, 2, '2025-05-22', 'cafe_da_manha', 74, 1.1, 148);
+
 -- --------------------------------------------------------
 
 --
--- Table structure for table `usuario`
+-- Estrutura da tabela `usuario`
 --
 
 CREATE TABLE `usuario` (
@@ -186,31 +193,31 @@ CREATE TABLE `usuario` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
--- Dumping data for table `usuario`
+-- Extraindo dados da tabela `usuario`
 --
 
 INSERT INTO `usuario` (`idusuario`, `nome_usuario`, `email`, `senha`, `meta`) VALUES
-(1, 'lucas', 'lucas@gmail.com', '$2y$10$rTCFAcre7TkDwqrp1BqqO.5vOQuGaiDJwC3Wy66NZzY92hiNrqSC2', 1500);
+(2, 'lucas', 'lucas@gmail.com', '$2y$10$hV064khAMRPRa0TVj3fYeuIC8uCpIVgJjfbkjbED805wokUm6Jw3i', 0);
 
 --
--- Indexes for dumped tables
+-- Índices para tabelas despejadas
 --
 
 --
--- Indexes for table `alimentos`
+-- Índices para tabela `alimentos`
 --
 ALTER TABLE `alimentos`
   ADD PRIMARY KEY (`idalimentos`);
 
 --
--- Indexes for table `calorias_diarias`
+-- Índices para tabela `calorias_diarias`
 --
 ALTER TABLE `calorias_diarias`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_calorias_usuario` (`usuario_idusuario`);
 
 --
--- Indexes for table `refeicao`
+-- Índices para tabela `refeicao`
 --
 ALTER TABLE `refeicao`
   ADD PRIMARY KEY (`idrefeicao`),
@@ -218,52 +225,52 @@ ALTER TABLE `refeicao`
   ADD KEY `fk_refeicao_alimento` (`idalimento`);
 
 --
--- Indexes for table `usuario`
+-- Índices para tabela `usuario`
 --
 ALTER TABLE `usuario`
   ADD PRIMARY KEY (`idusuario`);
 
 --
--- AUTO_INCREMENT for dumped tables
+-- AUTO_INCREMENT de tabelas despejadas
 --
 
 --
--- AUTO_INCREMENT for table `alimentos`
+-- AUTO_INCREMENT de tabela `alimentos`
 --
 ALTER TABLE `alimentos`
   MODIFY `idalimentos` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=113;
 
 --
--- AUTO_INCREMENT for table `calorias_diarias`
+-- AUTO_INCREMENT de tabela `calorias_diarias`
 --
 ALTER TABLE `calorias_diarias`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `refeicao`
+-- AUTO_INCREMENT de tabela `refeicao`
 --
 ALTER TABLE `refeicao`
-  MODIFY `idrefeicao` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idrefeicao` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
--- AUTO_INCREMENT for table `usuario`
+-- AUTO_INCREMENT de tabela `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `idusuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `idusuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- Constraints for dumped tables
+-- Restrições para despejos de tabelas
 --
 
 --
--- Constraints for table `calorias_diarias`
+-- Limitadores para a tabela `calorias_diarias`
 --
 ALTER TABLE `calorias_diarias`
   ADD CONSTRAINT `calorias_diarias_ibfk_1` FOREIGN KEY (`usuario_idusuario`) REFERENCES `usuario` (`idusuario`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_calorias_diarias_usuario` FOREIGN KEY (`usuario_idusuario`) REFERENCES `usuario` (`idusuario`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `refeicao`
+-- Limitadores para a tabela `refeicao`
 --
 ALTER TABLE `refeicao`
   ADD CONSTRAINT `fk_refeicao_alimento` FOREIGN KEY (`idalimento`) REFERENCES `alimentos` (`idalimentos`) ON DELETE CASCADE ON UPDATE CASCADE,

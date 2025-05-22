@@ -1,245 +1,254 @@
 <?php
-include('protect.php');
+session_start();
 include('conexao.php');
 
-// Função para buscar alimentos disponíveis
-function getAlimentos($conn) {
-    $sql = "SELECT idalimentos, nome_alimento, qtd_kcal FROM alimentos ORDER BY nome_alimento";
-    return $conn->query($sql)->fetch_all(MYSQLI_ASSOC);
+if (!isset($_SESSION['idusuario'])) {
+    die("Você precisa estar logado para acessar esta página.<p><a href=\"index.php\">Entrar</a></p>");
 }
 
-// Tratamento do POST para adicionar ou editar/excluir
+$idusuario = $_SESSION['idusuario'];
+$dataHoje = date('Y-m-d');
+
+// Pega a meta do usuário
+$sql_meta = $conn->prepare("SELECT meta FROM usuario WHERE idusuario = ?");
+$sql_meta->bind_param("i", $idusuario);
+$sql_meta->execute();
+$result_meta = $sql_meta->get_result();
+$meta_usuario = 0;
+if ($row = $result_meta->fetch_assoc()) {
+    $meta_usuario = floatval($row['meta']);
+}
+
+// Função para calcular calorias totais do dia
+function totalCaloriasDia($conn, $idusuario, $data) {
+    $sql = $conn->prepare("SELECT SUM(kcal_total) AS total FROM refeicao WHERE usuario_idusuario = ? AND data_refeicao = ?");
+    $sql->bind_param("is", $idusuario, $data);
+    $sql->execute();
+    $res = $sql->get_result();
+    if ($row = $res->fetch_assoc()) {
+        return floatval($row['total']) ?: 0;
+    }
+    return 0;
+}
+
+// Inserção de alimento na refeição
 $mensagem = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['acao'] === 'adicionar') {
+    $tipo_refeicao = $_POST['tipo_refeicao'] ?? '';
+    $idalimento = $_POST['idalimento'] ?? '';
+    $quantidade = $_POST['quantidade'] ?? '';
 
-    // Adicionar alimento à refeição
-    if (isset($_POST['add_refeicao'])) {
-        $idalimento = intval($_POST['idalimento']);
-        $tipo_refeicao = $_POST['tipo_refeicao'];
-        $data_refeicao = $_POST['data_refeicao'];
-        $quantidade = floatval($_POST['quantidade']);
+    if (empty($tipo_refeicao) || empty($idalimento) || empty($quantidade) || !is_numeric($quantidade) || $quantidade <= 0) {
+        $mensagem = '<p class="mensagem erro">Preencha todos os campos corretamente.</p>';
+    } else {
+        // Pega calorias do alimento
+        $sql_alimento = $conn->prepare("SELECT qtd_kcal FROM alimentos WHERE idalimentos = ?");
+        $sql_alimento->bind_param("i", $idalimento);
+        $sql_alimento->execute();
+        $res_alimento = $sql_alimento->get_result();
 
-        // Buscar qtd_kcal do alimento
-        $sql = "SELECT qtd_kcal FROM alimentos WHERE idalimentos = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $idalimento);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        if ($res->num_rows == 0) {
-            $mensagem = "Alimento não encontrado.";
-        } else {
-            $row = $res->fetch_assoc();
-            $qtd_kcal = $row['qtd_kcal'];
-            $kcal_total = ($quantidade * $qtd_kcal) / 100;
+        if ($alimento = $res_alimento->fetch_assoc()) {
+            $kcal_por_unidade = floatval($alimento['qtd_kcal']);
+            $kcal_total = $kcal_por_unidade * floatval($quantidade);
 
-            // Inserir na tabela refeicao
-            $sql = "INSERT INTO refeicao (usuario_idusuario, data_refeicao, tipo_refeicao, idalimento, quantidade, kcal_total) VALUES (?, ?, ?, ?, ?, ?)";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("issidd", $usuario_id, $data_refeicao, $tipo_refeicao, $idalimento, $quantidade, $kcal_total);
-            if ($stmt->execute()) {
-                $mensagem = "Alimento adicionado à refeição com sucesso!";
+            // Insere na tabela refeicao
+            $sql_insere = $conn->prepare("INSERT INTO refeicao (usuario_idusuario, data_refeicao, tipo_refeicao, idalimento, quantidade, kcal_total) VALUES (?, ?, ?, ?, ?, ?)");
+            $sql_insere->bind_param("issidd", $idusuario, $dataHoje, $tipo_refeicao, $idalimento, $quantidade, $kcal_total);
+
+            if ($sql_insere->execute()) {
+                $mensagem = '<p class="mensagem sucesso">Alimento adicionado com sucesso!</p>';
             } else {
-                $mensagem = "Erro ao adicionar alimento: " . $conn->error;
+                $mensagem = '<p class="mensagem erro">Erro ao adicionar alimento.</p>';
             }
-        }
-    }
-
-    // Editar quantidade de alimento em refeição
-    if (isset($_POST['edit_refeicao'])) {
-        $idrefeicao = intval($_POST['idrefeicao']);
-        $nova_quantidade = floatval($_POST['nova_quantidade']);
-
-        // Buscar idalimento da refeição
-        $sql = "SELECT idalimento FROM refeicao WHERE idrefeicao = ? AND usuario_idusuario = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ii", $idrefeicao, $usuario_id);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        if ($res->num_rows == 0) {
-            $mensagem = "Refeição não encontrada.";
         } else {
-            $row = $res->fetch_assoc();
-            $idalimento = $row['idalimento'];
-
-            // Buscar qtd_kcal do alimento
-            $sql = "SELECT qtd_kcal FROM alimentos WHERE idalimentos = ?";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("i", $idalimento);
-            $stmt->execute();
-            $res2 = $stmt->get_result();
-            $row2 = $res2->fetch_assoc();
-            $qtd_kcal = $row2['qtd_kcal'];
-
-            $novo_kcal_total = ($nova_quantidade * $qtd_kcal) / 100;
-
-            // Atualiza refeição
-            $sql = "UPDATE refeicao SET quantidade = ?, kcal_total = ? WHERE idrefeicao = ? AND usuario_idusuario = ?";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("diii", $nova_quantidade, $novo_kcal_total, $idrefeicao, $usuario_id);
-            if ($stmt->execute()) {
-                $mensagem = "Quantidade atualizada com sucesso!";
-            } else {
-                $mensagem = "Erro ao atualizar: " . $conn->error;
-            }
-        }
-    }
-
-    // Excluir alimento da refeição
-    if (isset($_POST['delete_refeicao'])) {
-        $idrefeicao = intval($_POST['idrefeicao']);
-        $sql = "DELETE FROM refeicao WHERE idrefeicao = ? AND usuario_idusuario = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ii", $idrefeicao, $usuario_id);
-        if ($stmt->execute()) {
-            $mensagem = "Alimento excluído da refeição.";
-        } else {
-            $mensagem = "Erro ao excluir: " . $conn->error;
+            $mensagem = '<p class="mensagem erro">Alimento não encontrado.</p>';
         }
     }
 }
 
-// Busca todas as refeições do usuário ordenadas por data e tipo
-$sql = "SELECT r.idrefeicao, r.data_refeicao, r.tipo_refeicao, a.nome_alimento, r.quantidade, r.kcal_total
-        FROM refeicao r
-        JOIN alimentos a ON r.idalimento = a.idalimentos
-        WHERE r.usuario_idusuario = ?
-        ORDER BY r.data_refeicao DESC, 
-          FIELD(r.tipo_refeicao, 'cafe_da_manha', 'almoco', 'lanche', 'janta')";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $usuario_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$refeicoes = $result->fetch_all(MYSQLI_ASSOC);
+// Edição (update) de um alimento na refeição
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['acao'] === 'editar') {
+    $idrefeicao = $_POST['idrefeicao'] ?? '';
+    $nova_quantidade = $_POST['quantidade'] ?? '';
 
-// Busca alimentos para o select
-$alimentos = getAlimentos($conn);
+    if (empty($idrefeicao) || empty($nova_quantidade) || !is_numeric($nova_quantidade) || $nova_quantidade <= 0) {
+        $mensagem = '<p class="mensagem erro">Quantidade inválida para edição.</p>';
+    } else {
+        // Pega o alimento para recalcular kcal
+        $sql_get = $conn->prepare("SELECT idalimento FROM refeicao WHERE idrefeicao = ? AND usuario_idusuario = ?");
+        $sql_get->bind_param("ii", $idrefeicao, $idusuario);
+        $sql_get->execute();
+        $res_get = $sql_get->get_result();
 
-// Mapeia tipos de refeição para mostrar texto amigável
-$tipos_refeicao = [
-    'cafe_da_manha' => 'Café da Manhã',
-    'almoco' => 'Almoço',
-    'lanche' => 'Lanche',
-    'janta' => 'Janta'
+        if ($row = $res_get->fetch_assoc()) {
+            $idalimento = $row['idalimento'];
+            $sql_kcal = $conn->prepare("SELECT qtd_kcal FROM alimentos WHERE idalimentos = ?");
+            $sql_kcal->bind_param("i", $idalimento);
+            $sql_kcal->execute();
+            $res_kcal = $sql_kcal->get_result();
+            if ($al = $res_kcal->fetch_assoc()) {
+                $kcal_total = floatval($al['qtd_kcal']) * floatval($nova_quantidade);
+
+                // Atualiza refeição
+                $sql_upd = $conn->prepare("UPDATE refeicao SET quantidade = ?, kcal_total = ? WHERE idrefeicao = ? AND usuario_idusuario = ?");
+                $sql_upd->bind_param("diii", $nova_quantidade, $kcal_total, $idrefeicao, $idusuario);
+                if ($sql_upd->execute()) {
+                    $mensagem = '<p class="mensagem sucesso">Quantidade atualizada com sucesso!</p>';
+                } else {
+                    $mensagem = '<p class="mensagem erro">Erro ao atualizar quantidade.</p>';
+                }
+            } else {
+                $mensagem = '<p class="mensagem erro">Alimento não encontrado para cálculo.</p>';
+            }
+        } else {
+            $mensagem = '<p class="mensagem erro">Refeição não encontrada para edição.</p>';
+        }
+    }
+}
+
+// Exclusão de um alimento na refeição
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['acao'] === 'excluir') {
+    $idrefeicao = $_POST['idrefeicao'] ?? '';
+
+    if (!empty($idrefeicao)) {
+        $sql_del = $conn->prepare("DELETE FROM refeicao WHERE idrefeicao = ? AND usuario_idusuario = ?");
+        $sql_del->bind_param("ii", $idrefeicao, $idusuario);
+        if ($sql_del->execute()) {
+            $mensagem = '<p class="mensagem sucesso">Alimento excluído com sucesso!</p>';
+        } else {
+            $mensagem = '<p class="mensagem erro">Erro ao excluir alimento.</p>';
+        }
+    }
+}
+
+// Busca alimentos para o select do formulário
+$sql_alimentos = $conn->query("SELECT idalimentos, nome_alimento FROM alimentos ORDER BY nome_alimento");
+
+// Busca as refeições do dia, agrupadas por tipo
+$sql_refeicoes = $conn->prepare("SELECT r.*, a.nome_alimento FROM refeicao r INNER JOIN alimentos a ON r.idalimento = a.idalimentos WHERE r.usuario_idusuario = ? AND r.data_refeicao = ? ORDER BY r.tipo_refeicao, a.nome_alimento");
+$sql_refeicoes->bind_param("is", $idusuario, $dataHoje);
+$sql_refeicoes->execute();
+$res_refeicoes = $sql_refeicoes->get_result();
+
+$refeicoes_por_tipo = [
+    'cafe_da_manha' => [],
+    'almoco' => [],
+    'lanche' => [],
+    'janta' => []
 ];
+
+while ($row = $res_refeicoes->fetch_assoc()) {
+    $refeicoes_por_tipo[$row['tipo_refeicao']][] = $row;
+}
+
+$total_consumido = totalCaloriasDia($conn, $idusuario, $dataHoje);
+$meta_restante = $meta_usuario - $total_consumido;
+if ($meta_restante < 0) $meta_restante = 0;
+
 ?>
 
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8" />
-    <title>Gerenciar Refeições</title>
-    <link rel="stylesheet" href="seu_css_geral.css" />
-    <style>
-        /* Estilos específicos */
-        .container-refeicao {
-            max-width: 800px;
-            margin: 40px auto;
-            background-color: #1f1f1f;
-            padding: 25px;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-            border: 1px solid #333;
-            color: white;
-        }
-        .mensagem {
-            margin-bottom: 20px;
-            font-weight: bold;
-            text-align: center;
-        }
-        .mensagem.sucesso {
-            color: #4caf50;
-        }
-        .mensagem.erro {
-            color: #f44336;
-        }
-    </style>
+    <title>Editar Refeição - EasyKcal</title>
+    <link rel="stylesheet" href="style-refeicao.css" />
 </head>
 <body>
+<div class="container-refeicao">
 
-<div class="container-refeicao painel-container">
+    <h2>Adicionar alimento às refeições (<?php echo $dataHoje; ?>)</h2>
 
-    <h2>Gerenciar Refeições</h2>
+    <?php echo $mensagem ?? ''; ?>
 
-    <?php if ($mensagem): ?>
-        <div class="mensagem <?= strpos($mensagem, 'erro') !== false ? 'erro' : 'sucesso'; ?>">
-            <?= htmlspecialchars($mensagem) ?>
-        </div>
-    <?php endif; ?>
-
-    <!-- Formulário para adicionar alimento na refeição -->
-    <form method="post">
-        <h3>Adicionar alimento à refeição</h3>
+    <!-- Formulário para adicionar alimento -->
+    <form method="POST">
+        <input type="hidden" name="acao" value="adicionar" />
+        
+        <label for="tipo_refeicao">Refeição:</label>
+        <select name="tipo_refeicao" id="tipo_refeicao" required>
+            <option value="">Selecione a refeição</option>
+            <option value="cafe_da_manha">Café da Manhã</option>
+            <option value="almoco">Almoço</option>
+            <option value="lanche">Lanche</option>
+            <option value="janta">Janta</option>
+        </select>
 
         <label for="idalimento">Alimento:</label>
-        <select id="idalimento" name="idalimento" required>
-            <option value="">-- Selecione --</option>
-            <?php foreach ($alimentos as $alimento): ?>
-                <option value="<?= $alimento['idalimentos'] ?>">
-                    <?= htmlspecialchars($alimento['nome_alimento']) ?> (<?= $alimento['qtd_kcal'] ?> kcal/100g)
+        <select name="idalimento" id="idalimento" required>
+            <option value="">Selecione o alimento</option>
+            <?php while($alimento = $sql_alimentos->fetch_assoc()): ?>
+                <option value="<?php echo $alimento['idalimentos']; ?>">
+                    <?php echo htmlspecialchars($alimento['nome_alimento']); ?>
                 </option>
-            <?php endforeach; ?>
+            <?php endwhile; ?>
         </select>
 
-        <label for="tipo_refeicao">Tipo da Refeição:</label>
-        <select id="tipo_refeicao" name="tipo_refeicao" required>
-            <?php foreach ($tipos_refeicao as $key => $label): ?>
-                <option value="<?= $key ?>"><?= $label ?></option>
-            <?php endforeach; ?>
-        </select>
+        <label for="quantidade">Quantidade (unidades/porções):</label>
+        <input type="number" name="quantidade" id="quantidade" step="0.01" min="0.01" required />
 
-        <label for="data_refeicao">Data da Refeição:</label>
-        <input type="date" id="data_refeicao" name="data_refeicao" value="<?= date('Y-m-d') ?>" required />
-
-        <label for="quantidade">Quantidade (gramas):</label>
-        <input type="number" id="quantidade" name="quantidade" min="1" step="0.1" required />
-
-        <button type="submit" name="add_refeicao">Adicionar</button>
+        <button type="submit">Adicionar</button>
     </form>
 
-    <!-- Lista de refeições do usuário -->
-    <h3>Refeições registradas</h3>
+    <hr/>
 
-    <div class="table-wrapper">
-        <table>
-            <thead>
-                <tr>
-                    <th>Data</th>
-                    <th>Tipo</th>
-                    <th>Alimento</th>
-                    <th>Quantidade (g)</th>
-                    <th>Calorias</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($refeicoes)): ?>
-                    <tr><td colspan="6" style="text-align:center;">Nenhuma refeição cadastrada.</td></tr>
-                <?php else: ?>
-                    <?php foreach ($refeicoes as $refeicao): ?>
+    <h3>Total consumido hoje: <?php echo number_format($total_consumido, 2); ?> kcal</h3>
+    <h3>Meta restante: <?php echo number_format($meta_restante, 2); ?> kcal</h3>
+
+    <!-- Listagem por refeições -->
+    <?php foreach ($refeicoes_por_tipo as $tipo => $itens): ?>
+        <section>
+            <h3>
+                <?php 
+                switch($tipo) {
+                    case 'cafe_da_manha': echo "Café da Manhã"; break;
+                    case 'almoco': echo "Almoço"; break;
+                    case 'lanche': echo "Lanche"; break;
+                    case 'janta': echo "Janta"; break;
+                }
+                ?>
+            </h3>
+            <?php if (count($itens) === 0): ?>
+                <p>Nenhum alimento adicionado.</p>
+            <?php else: ?>
+                <table>
+                    <thead>
                         <tr>
-                            <td><?= htmlspecialchars($refeicao['data_refeicao']) ?></td>
-                            <td><?= htmlspecialchars($tipos_refeicao[$refeicao['tipo_refeicao']]) ?></td>
-                            <td><?= htmlspecialchars($refeicao['nome_alimento']) ?></td>
-                            <td>
-                                <form method="post" class="edit-form" style="margin:0;">
-                                    <input type="hidden" name="idrefeicao" value="<?= $refeicao['idrefeicao'] ?>" />
-                                    <input type="number" name="nova_quantidade" value="<?= $refeicao['quantidade'] ?>" min="1" step="0.1" required />
-                                    <button type="submit" name="edit_refeicao">Salvar</button>
-                                </form>
-                            </td>
-                            <td><?= number_format($refeicao['kcal_total'], 2) ?> kcal</td>
-                            <td>
-                                <form method="post" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir este alimento?');">
-                                    <input type="hidden" name="idrefeicao" value="<?= $refeicao['idrefeicao'] ?>" />
-                                    <button type="submit" name="delete_refeicao" class="btn btn-excluir">Excluir</button>
-                                </form>
-                            </td>
+                            <th>Alimento</th>
+                            <th>Quantidade</th>
+                            <th>Calorias</th>
+                            <th>Ações</th>
                         </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
+                    </thead>
+                    <tbody>
+                        <?php foreach($itens as $item): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($item['nome_alimento']); ?></td>
+                                <td><?php echo number_format($item['quantidade'], 2); ?></td>
+                                <td><?php echo number_format($item['kcal_total'], 2); ?></td>
+                                <td>
+                                    <!-- Form para editar -->
+                                    <form class="edit-form" method="POST" style="display:inline-block;">
+                                        <input type="hidden" name="acao" value="editar" />
+                                        <input type="hidden" name="idrefeicao" value="<?php echo $item['idrefeicao']; ?>" />
+                                        <input type="number" name="quantidade" value="<?php echo $item['quantidade']; ?>" step="0.01" min="0.01" required />
+                                        <button type="submit" title="Atualizar quantidade">Salvar</button>
+                                    </form>
+
+                                    <!-- Form para excluir -->
+                                    <form method="POST" style="display:inline-block;" onsubmit="return confirm('Deseja realmente excluir este alimento?');">
+                                        <input type="hidden" name="acao" value="excluir" />
+                                        <input type="hidden" name="idrefeicao" value="<?php echo $item['idrefeicao']; ?>" />
+                                        <button class="btn-excluir" type="submit" title="Excluir alimento">Excluir</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </section>
+    <?php endforeach; ?>
 
 </div>
 

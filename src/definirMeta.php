@@ -1,10 +1,7 @@
 <?php
-include('protect.php');
+include('protect.php'); 
+$usuario_id = $_SESSION['idusuario']; 
 
-if (!isset($_SESSION['idusuario'])) {
-    die("Você precisa estar logado para definiar a meta de calorias.<p><a href=\"index.php\">Entrar</a></p>");
-    exit;
-}
 $mensagem_sucesso = '';
 $mensagem_erro = '';
 include('conexao.php');

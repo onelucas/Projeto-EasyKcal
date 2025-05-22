@@ -1,5 +1,7 @@
 <?php
-include('protect.php');
+include('protect.php'); 
+$usuario_id = $_SESSION['idusuario']; 
+
 include('conexao.php');
 
 // Mensagens
@@ -64,61 +66,64 @@ $alimento_editando = isset($_GET['edit']) ? intval($_GET['edit']) : null;
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <?php include('header.php'); ?>
+<?php include('header.php'); ?>
 
-    <div class="painel-container">
-        <h2>Cadastrar Novo Alimento</h2>
+<div class="painel-container">
+    <h2>Cadastrar Novo Alimento</h2>
 
-        <form method="POST">
-            <input type="text" name="nome_alimento" placeholder="Nome do alimento (Quantidade)" required>
-            <input type="number" step="0.01" name="qtd_kcal" placeholder="Quantidade de kcal" required>
-            <button type="submit" class="btn">Cadastrar</button>
-        </form>
+    <form method="POST">
+        <input type="text" name="nome_alimento" placeholder="Nome do alimento (Porção)" required>
+        <input type="number" step="0.01" name="qtd_kcal" placeholder="Quantidade de kcal" required>
+        <button type="submit" class="btn">Cadastrar</button>
+    </form>
 
-        <?php if ($mensagem_sucesso): ?>
-            <div class="mensagem-sucesso"><?= htmlspecialchars($mensagem_sucesso) ?></div>
-        <?php elseif ($mensagem_erro): ?>
-            <div class="mensagem-erro"><?= htmlspecialchars($mensagem_erro) ?></div>
-        <?php endif; ?>
+    <?php if ($mensagem_sucesso): ?>
+        <div class="mensagem-sucesso"><?= htmlspecialchars($mensagem_sucesso) ?></div>
+    <?php elseif ($mensagem_erro): ?>
+        <div class="mensagem-erro"><?= htmlspecialchars($mensagem_erro) ?></div>
+    <?php endif; ?>
 
-        <h3>Alimentos Cadastrados</h3>
+    <h3>Alimentos Cadastrados</h3>
 
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nome do Alimento (Quantidade)</th>
-                        <th>Calorias (kcal)</th>
-                        <th>Ações</th>
+    <!-- Campo de pesquisa -->
+    <input type="text" id="pesquisaAlimento" placeholder="Buscar alimento..." style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #ccc;">
+
+    <div class="table-wrapper">
+        <table id="tabelaAlimentos">
+            <thead>
+                <tr>
+                    <th>Nome do Alimento (Porção)</th>
+                    <th>Calorias (kcal)</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($row = $resultado->fetch_assoc()): ?>
+                    <tr id="alimento-<?= $row['idalimentos'] ?>">
+                        <?php if ($alimento_editando === intval($row['idalimentos'])): ?>
+                            <td colspan="3">
+                                <form method="POST" class="edit-form">
+                                    <input type="hidden" name="id_alimento" value="<?= $row['idalimentos'] ?>">
+                                    <input type="text" name="nome_alimento" value="<?= htmlspecialchars($row['nome_alimento']) ?>" required>
+                                    <input type="number" step="0.01" name="qtd_kcal" value="<?= htmlspecialchars($row['qtd_kcal']) ?>" required>
+                                    <button type="submit">Salvar</button>
+                                    <a href="cadastrarAlimentos.php" class="cancelar-btn">Cancelar</a>
+                                </form>
+                            </td>
+                        <?php else: ?>
+                            <td><?= htmlspecialchars($row['nome_alimento']) ?></td>
+                            <td><?= htmlspecialchars($row['qtd_kcal']) ?></td>
+                            <td>
+                                <a href="cadastrarAlimentos.php?edit=<?= $row['idalimentos'] ?>" class="btn-editar">Editar</a> |
+                                <a href="cadastrarAlimentos.php?excluir=<?= $row['idalimentos'] ?>" class="btn-excluir" onclick="return confirm('Tem certeza que deseja excluir este alimento?')">Excluir</a>
+                            </td>
+                        <?php endif; ?>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php while ($row = $resultado->fetch_assoc()): ?>
-                        <tr id="alimento-<?= $row['idalimentos'] ?>">
-                            <?php if ($alimento_editando === intval($row['idalimentos'])): ?>
-                                <td colspan="3">
-                                    <form method="POST" class="edit-form">
-                                        <input type="hidden" name="id_alimento" value="<?= $row['idalimentos'] ?>">
-                                        <input type="text" name="nome_alimento" value="<?= htmlspecialchars($row['nome_alimento']) ?>" required>
-                                        <input type="number" step="0.01" name="qtd_kcal" value="<?= htmlspecialchars($row['qtd_kcal']) ?>" required>
-                                        <button type="submit">Salvar</button>
-                                        <a href="cadastrarAlimentos.php" class="cancelar-btn">Cancelar</a>
-                                    </form>
-                                </td>
-                            <?php else: ?>
-                                <td><?= htmlspecialchars($row['nome_alimento']) ?></td>
-                                <td><?= htmlspecialchars($row['qtd_kcal']) ?></td>
-                                <td>
-                                    <a href="cadastrarAlimentos.php?edit=<?= $row['idalimentos'] ?>" class="btn-editar">Editar</a> |
-                                    <a href="cadastrarAlimentos.php?excluir=<?= $row['idalimentos'] ?>" class="btn-excluir" onclick="return confirm('Tem certeza que deseja excluir este alimento?')">Excluir</a>
-                                </td>
-                            <?php endif; ?>
-                        </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
-        </div>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
     </div>
+</div>
 
 <?php if ($alimento_editando): ?>
 <script>
@@ -130,5 +135,19 @@ $alimento_editando = isset($_GET['edit']) ? intval($_GET['edit']) : null;
     };
 </script>
 <?php endif; ?>
+
+<!-- Script de filtro de pesquisa -->
+<script>
+    document.getElementById('pesquisaAlimento').addEventListener('input', function () {
+        const filtro = this.value.toLowerCase();
+        const linhas = document.querySelectorAll('#tabelaAlimentos tbody tr');
+
+        linhas.forEach(linha => {
+            const nome = linha.querySelector('td')?.innerText.toLowerCase() || '';
+            linha.style.display = nome.includes(filtro) ? '' : 'none';
+        });
+    });
+</script>
+
 </body>
 </html>

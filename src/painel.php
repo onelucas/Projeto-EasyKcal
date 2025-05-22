@@ -1,5 +1,7 @@
 <?php
-include('protect.php');
+include('protect.php'); 
+$usuario_id = $_SESSION['idusuario']; 
+
 ?>
 
 <!DOCTYPE html>

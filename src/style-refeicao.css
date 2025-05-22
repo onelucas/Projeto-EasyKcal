@@ -1,0 +1,214 @@
+/* style-refeicao.css */
+
+/* Estilização geral da tela de refeições */
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #121212;
+    color: white;
+    margin: 0;
+}
+
+.container-refeicao {
+    max-width: 800px;
+    margin: 40px auto;
+    background: #1f1f1f;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+    border: 1px solid #333;
+}
+
+.container-refeicao h2,
+.container-refeicao h3 {
+    margin-bottom: 14px;
+    color: #66bb6a;
+}
+
+.mensagem {
+    margin-bottom: 16px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.mensagem.sucesso { 
+    color: #4caf50; 
+}
+
+.mensagem.erro { 
+    color: #f44336; 
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+form input,
+form select,
+form button {
+    padding: 7px;
+    border-radius: 6px;
+    border: 1px solid #555;
+    background: #222;
+    color: white;
+    font-size: 14px;
+}
+
+form button {
+    background: #66bb6a;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+form button:hover {
+    background: #4caf50;
+}
+
+.table-wrapper {
+    margin-top: 16px;
+    border: 1px solid #444;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+thead th {
+    background: #1f1f1f;
+    padding: 10px;
+    border-bottom: 2px solid #66bb6a;
+    text-align: left;
+}
+
+tbody tr:nth-child(even) { 
+    background: #2a2a2a; 
+}
+
+tbody tr:hover { 
+    background: #388e3c; 
+}
+
+td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #444;
+}
+
+.edit-form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 0;
+}
+
+.edit-form input[type="number"] {
+    width: 80px;
+    background: #222;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.edit-form button {
+    padding: 5px 8px;
+    background: #66bb6a;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.edit-form button:hover {
+    background: #4caf50;
+}
+
+.btn-excluir {
+    font-size: 13px;
+    padding: 5px 8px;
+    font-weight: bold;
+    background: #f44336;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-excluir:hover {
+    background: #d32f2f;
+}
+
+/* Estilos para botões das refeições e modal */
+
+.btn-gerenciar-refeicao {
+    margin: 8px 4px 16px 0;
+    padding: 8px 12px;
+    background-color: #66bb6a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.btn-gerenciar-refeicao:hover {
+    background-color: #4caf50;
+}
+
+/* Modal */
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(18, 18, 18, 0.95);
+    backdrop-filter: blur(4px);
+    padding: 60px 20px;
+}
+
+.modal-content {
+    background-color: #1f1f1f;
+    margin: auto;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 700px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+    position: relative;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    color: #66bb6a;
+    margin: 0;
+}
+
+.close-modal {
+    color: #ccc;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+}
+
+.close-modal:hover {
+    color: #f44336;
+}

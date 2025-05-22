@@ -255,63 +255,60 @@ button:hover {
     height: auto;  
 }
 
-/* cadastrarAlimentos.php */ 
+/* cadastrarAlimentos.php - versão compacta */
 
-.mensagem-sucesso {
-    color: #4caf50;
-    margin-top: 10px;
+body {
+    font-size: 13px;
 }
 
-.mensagem-erro {
-    color: #f44336;
-    margin-top: 10px;
+/* Mensagens */
+.mensagem-sucesso, .mensagem-erro {
+    font-size: 12px;
+    margin-top: 6px;
 }
 
+/* Formulário */
 .painel-container form {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.painel-container form input,
+.painel-container form button {
+    padding: 4px 6px;
+    font-size: 12px;
 }
 
 .painel-container ul {
     list-style: none;
     padding: 0;
-    margin-top: 10px;
+    margin-top: 8px;
 }
 
-/* tabela alimentos - Scroll */
-
+/* Tabela com scroll */
 .table-wrapper {
-    max-height: 400px;  
-    overflow-y: auto;   
-    margin-top: 20px;
-    border: 1px solid #444;
-    border-radius: 8px;
-}
-
-/* Estilização básica da tabela */
-/* Tabela */
-.table-wrapper {
-    max-height: 400px;
+    max-height: 340px;
     overflow-y: auto;
-    margin-top: 20px;
+    margin-top: 16px;
     border: 1px solid #444;
-    border-radius: 8px;
+    border-radius: 6px;
 }
 
+/* Tabela */
 .table-wrapper table {
     width: 100%;
     border-collapse: collapse;
     color: white;
+    font-size: 12px;
 }
 
 .table-wrapper thead th {
     position: sticky;
     top: 0;
     background-color: #1f1f1f;
-    padding: 10px;
-    text-align: left;
+    padding: 6px;
     border-bottom: 2px solid #66bb6a;
     font-weight: bold;
 }
@@ -325,33 +322,35 @@ button:hover {
 }
 
 .table-wrapper tbody td {
-    padding: 10px;
+    padding: 6px;
     border-bottom: 1px solid #444;
 }
 
 /* Formulário de edição inline */
 .edit-form {
     display: flex;
-    gap: 8px;
+    gap: 5px;
     flex-wrap: wrap;
 }
 
 .edit-form input[type=text],
 .edit-form input[type=number] {
-    width: 180px;
-    padding: 4px 6px;
-    border-radius: 4px;
+    width: 140px;
+    padding: 3px 5px;
+    border-radius: 3px;
     border: 1px solid #666;
     background-color: #222;
     color: white;
+    font-size: 12px;
 }
 
 .edit-form button {
-    padding: 6px 12px;
-    border: none;
+    padding: 5px 8px;
+    font-size: 12px;
     background-color: #66bb6a;
     color: white;
-    border-radius: 4px;
+    border: none;
+    border-radius: 3px;
     cursor: pointer;
 }
 
@@ -362,8 +361,9 @@ button:hover {
 .cancelar-btn {
     background-color: #777 !important;
     color: white !important;
-    padding: 6px 12px !important;
-    border-radius: 4px;
+    padding: 5px 8px !important;
+    font-size: 12px !important;
+    border-radius: 3px;
     text-decoration: none;
     cursor: pointer;
 }
@@ -372,22 +372,34 @@ button:hover {
     background-color: #555 !important;
 }
 
-/* Botões editar e excluir na tabela */
-.btn-editar {
-    color: #4caf50;
-    cursor: pointer;
+/* Botões editar e excluir */
+.btn-editar,
+.btn-excluir {
+    font-size: 12px;
+    padding: 3px 5px;
+    font-weight: bold;
     background: none;
     border: none;
-    font-weight: bold;
+    cursor: pointer;
     text-decoration: underline;
+}
+
+.btn-editar {
+    color: #4caf50;
 }
 
 .btn-excluir {
     color: #f44336;
-    cursor: pointer;
-    background: none;
-    border: none;
-    font-weight: bold;
-    text-decoration: underline;
 }
 
+/* Campo de busca (se houver) */
+#pesquisaAlimento {
+    padding: 5px 8px;
+    font-size: 12px;
+    width: 100%;
+    margin-bottom: 10px;
+    border-radius: 3px;
+    background-color: #222;
+    border: 1px solid #666;
+    color: white;
+}
