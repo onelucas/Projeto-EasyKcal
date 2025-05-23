@@ -15,7 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['editar_idrefeicao'], 
     $idrefeicao = intval($_POST['editar_idrefeicao']);
     $nova_quantidade = floatval($_POST['nova_quantidade']);
 
-    // Buscar id do alimento para calcular calorias
     $stmt = $conn->prepare("SELECT idalimento FROM refeicao WHERE idrefeicao = ? AND usuario_idusuario = ?");
     $stmt->bind_param("ii", $idrefeicao, $idUsuario);
     $stmt->execute();
@@ -47,7 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['idalimento'], $_POST[
     $quantidade = floatval($_POST['quantidade']);
     $tipo_refeicao = $_POST['tipo_refeicao'];
 
-    // Buscar as calorias por porção
     $stmtKcal = $conn->prepare("SELECT qtd_kcal FROM alimentos WHERE idalimentos = ?");
     $stmtKcal->bind_param("i", $idalimento);
     $stmtKcal->execute();
@@ -65,37 +63,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['idalimento'], $_POST[
             $mensagem = "Erro ao adicionar alimento.";
         }
     }
-    $stmtSoma = $conn->prepare("
-    SELECT SUM(kcal_total) AS total
-    FROM refeicao
-    WHERE usuario_idusuario = ? AND data_refeicao = ?
-");
-$stmtSoma->bind_param("is", $idUsuario, $dataHoje);
-$stmtSoma->execute();
-$resultSoma = $stmtSoma->get_result();
-$totalDia = $resultSoma->fetch_assoc()['total'] ?? 0;
 
-// Verifica se já existe registro
-$stmtCheck = $conn->prepare("SELECT id FROM calorias_diarias WHERE usuario_idusuario = ? AND data_registro = ?");
-$stmtCheck->bind_param("is", $idUsuario, $dataHoje);
-$stmtCheck->execute();
-$resultCheck = $stmtCheck->get_result();
+    // Atualiza ou insere o total no calorias_diarias
+    $stmtSoma = $conn->prepare("SELECT SUM(kcal_total) AS total FROM refeicao WHERE usuario_idusuario = ? AND data_refeicao = ?");
+    $stmtSoma->bind_param("is", $idUsuario, $dataHoje);
+    $stmtSoma->execute();
+    $resultSoma = $stmtSoma->get_result();
+    $totalDia = $resultSoma->fetch_assoc()['total'] ?? 0;
 
-if ($resultCheck->num_rows > 0) {
-    // Atualiza se já existir
-    $stmtUpdate = $conn->prepare("UPDATE calorias_diarias SET total_kcal = ? WHERE usuario_idusuario = ? AND data_registro = ?");
-    $stmtUpdate->bind_param("dis", $totalDia, $idUsuario, $dataHoje);
-    $stmtUpdate->execute();
-} else {
-    // Insere se não existir
-    $stmtInsertKcal = $conn->prepare("INSERT INTO calorias_diarias (usuario_idusuario, data_registro, total_kcal) VALUES (?, ?, ?)");
-    $stmtInsertKcal->bind_param("isd", $idUsuario, $dataHoje, $totalDia);
-    $stmtInsertKcal->execute();
+    $stmtCheck = $conn->prepare("SELECT id FROM calorias_diarias WHERE usuario_idusuario = ? AND data_registro = ?");
+    $stmtCheck->bind_param("is", $idUsuario, $dataHoje);
+    $stmtCheck->execute();
+    $resultCheck = $stmtCheck->get_result();
+
+    if ($resultCheck->num_rows > 0) {
+        $stmtUpdate = $conn->prepare("UPDATE calorias_diarias SET total_kcal = ? WHERE usuario_idusuario = ? AND data_registro = ?");
+        $stmtUpdate->bind_param("dis", $totalDia, $idUsuario, $dataHoje);
+        $stmtUpdate->execute();
+    } else {
+        $stmtInsertKcal = $conn->prepare("INSERT INTO calorias_diarias (usuario_idusuario, data_registro, total_kcal) VALUES (?, ?, ?)");
+        $stmtInsertKcal->bind_param("isd", $idUsuario, $dataHoje, $totalDia);
+        $stmtInsertKcal->execute();
+    }
 }
 
-}
-
-// EXCLUSÃO DE ALIMENTO
+// EXCLUSÃO
 if (isset($_GET['excluir'])) {
     $idrefeicao = intval($_GET['excluir']);
     $stmtDel = $conn->prepare("DELETE FROM refeicao WHERE idrefeicao = ? AND usuario_idusuario = ?");
@@ -116,7 +108,6 @@ $stmtAlimentos = $conn->prepare("SELECT idalimentos, nome_alimento, qtd_kcal FRO
 $stmtAlimentos->execute();
 $alimentos = $stmtAlimentos->get_result()->fetch_all(MYSQLI_ASSOC);
 
-// Obter refeições por tipo
 $tipos_refeicao = ['cafe_da_manha', 'almoco', 'lanche', 'janta'];
 $refeicoes = [];
 
@@ -133,7 +124,6 @@ foreach ($tipos_refeicao as $tipo) {
     $refeicoes[$tipo] = $stmtRefeicao->get_result()->fetch_all(MYSQLI_ASSOC);
 }
 
-// Cálculo de total de calorias consumidas
 $calorias_consumidas = 0;
 foreach ($refeicoes as $lista) {
     foreach ($lista as $refeicao) {
@@ -169,7 +159,7 @@ $meta_restante = $metaUsuario - $calorias_consumidas;
         <label for="tipo_refeicao">Refeição</label>
         <select name="tipo_refeicao" required>
             <option value="">Selecione</option>
-            <option value="cafe_da_manha">Café da manhã</option>
+            <option value="cafe_da_manha">Café da Manhã</option>
             <option value="almoco">Almoço</option>
             <option value="lanche">Lanche</option>
             <option value="janta">Janta</option>
@@ -195,8 +185,17 @@ $meta_restante = $metaUsuario - $calorias_consumidas;
 
     <hr style="margin: 30px 0; border-color: #444;">
 
+    <?php
+    $nomes_formatados = [
+        'cafe_da_manha' => 'Café da Manhã',
+        'almoco' => 'Almoço',
+        'lanche' => 'Lanche',
+        'janta' => 'Janta'
+    ];
+    ?>
+
     <?php foreach ($refeicoes as $tipo => $dados): ?>
-        <h3><?= ucfirst(str_replace('_', ' ', $tipo)) ?></h3>
+        <h3><?= $nomes_formatados[$tipo] ?? ucfirst($tipo) ?></h3>
         <?php if (count($dados) > 0): ?>
             <div class="table-wrapper">
                 <table>
@@ -210,7 +209,11 @@ $meta_restante = $metaUsuario - $calorias_consumidas;
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($dados as $linha): ?>
+                        <?php
+                        $total_kcal_refeicao = 0;
+                        foreach ($dados as $linha):
+                            $total_kcal_refeicao += $linha['kcal_total'];
+                        ?>
                             <tr>
                                 <td><?= htmlspecialchars($linha['nome_alimento']) ?></td>
                                 <td><?= number_format($linha['quantidade'], 0, ',', '.') ?></td>
@@ -229,6 +232,7 @@ $meta_restante = $metaUsuario - $calorias_consumidas;
                     </tbody>
                 </table>
             </div>
+            <p><strong>Total de calorias nesta refeição:</strong> <?= number_format($total_kcal_refeicao, 2, ',', '.') ?> kcal</p>
         <?php else: ?>
             <p>Nenhum alimento registrado nesta refeição.</p>
         <?php endif; ?>
