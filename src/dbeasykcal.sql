@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3316
--- Tempo de geração: 22-Maio-2025 às 22:21
+-- Tempo de geração: 23-Maio-2025 às 21:37
 -- Versão do servidor: 10.4.32-MariaDB
 -- versão do PHP: 8.2.12
 
@@ -155,6 +155,15 @@ CREATE TABLE `calorias_diarias` (
   `total_kcal` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
+--
+-- Extraindo dados da tabela `calorias_diarias`
+--
+
+INSERT INTO `calorias_diarias` (`id`, `usuario_idusuario`, `data_registro`, `total_kcal`) VALUES
+(2, 2, '2024-05-20', 1800),
+(3, 2, '2025-05-22', 2500),
+(4, 2, '2025-05-23', 2501);
+
 -- --------------------------------------------------------
 
 --
@@ -176,7 +185,14 @@ CREATE TABLE `refeicao` (
 --
 
 INSERT INTO `refeicao` (`idrefeicao`, `usuario_idusuario`, `data_refeicao`, `tipo_refeicao`, `idalimento`, `quantidade`, `kcal_total`) VALUES
-(6, 2, '2025-05-22', 'cafe_da_manha', 74, 1.1, 148);
+(6, 2, '2025-05-22', 'cafe_da_manha', 74, 1.1, 148),
+(7, 2, '2025-05-23', 'almoco', 7, 1, 14),
+(8, 2, '2025-05-23', 'almoco', 21, 1, 25),
+(10, 2, '2025-05-23', 'cafe_da_manha', 75, 1, 110),
+(11, 2, '2025-05-23', 'cafe_da_manha', 75, 1.2, 132),
+(12, 2, '2025-05-23', 'cafe_da_manha', 75, 2, 220),
+(13, 2, '2025-05-23', 'cafe_da_manha', 14, 5, 1900),
+(14, 2, '2025-05-23', 'lanche', 4, 2, 100);
 
 -- --------------------------------------------------------
 
@@ -197,7 +213,7 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`idusuario`, `nome_usuario`, `email`, `senha`, `meta`) VALUES
-(2, 'lucas', 'lucas@gmail.com', '$2y$10$hV064khAMRPRa0TVj3fYeuIC8uCpIVgJjfbkjbED805wokUm6Jw3i', 0);
+(2, 'lucas', 'lucas@gmail.com', '$2y$10$hV064khAMRPRa0TVj3fYeuIC8uCpIVgJjfbkjbED805wokUm6Jw3i', 2000);
 
 --
 -- Índices para tabelas despejadas
@@ -244,13 +260,13 @@ ALTER TABLE `alimentos`
 -- AUTO_INCREMENT de tabela `calorias_diarias`
 --
 ALTER TABLE `calorias_diarias`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de tabela `refeicao`
 --
 ALTER TABLE `refeicao`
-  MODIFY `idrefeicao` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `idrefeicao` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT de tabela `usuario`
