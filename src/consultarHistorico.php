@@ -43,6 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['data'])) {
     <link rel="stylesheet" href="style-refeicao.css">
 </head>
 <body>
+    
+<?php include 'header.php'; ?>
+
 <div class="container-refeicao">
     <h2>Histórico de Desempenho</h2>
 

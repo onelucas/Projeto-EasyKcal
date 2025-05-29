@@ -141,6 +141,9 @@ $meta_restante = $metaUsuario - $calorias_consumidas;
     <link rel="stylesheet" href="style-refeicao.css">
 </head>
 <body>
+
+<?php include 'header.php'; ?>
+
 <div class="container-refeicao">
     <h2>Minhas Refeições</h2>
 

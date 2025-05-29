@@ -145,3 +145,52 @@ td {
     font-size: 14px;
     margin-bottom: -10px;
 }
+
+
+/* Zonas fixas */
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 55px;
+  background: #1f1f1f;
+  z-index: 1000;
+}
+
+/* Botão “Menu” */
+.menu-voltar-btn {
+  position: absolute;
+  top: 50%;
+  left: 20px;
+  transform: translateY(-50%);
+  background-color: #66bb6a;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 14px;
+  transition: background 0.3s ease;
+}
+.menu-voltar-btn:hover {
+  background-color: #388e3c;
+}
+
+/* Logo fixa no topo direito */
+.logo-fixed-top-right {
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+}
+.logo-fixed-top-right img {
+  max-width: 120px;
+  height: auto;
+  cursor: pointer;
+}
+
+/* Garante que o <body> não fique atrás do header fixo */
+body {
+  padding-top: 55px;
+}
