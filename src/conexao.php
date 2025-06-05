@@ -4,7 +4,7 @@ $usuario = 'root';
 $senha = '';
 $database = 'dbeasykcal';
 $host = 'localhost';
-$porta = 3316;
+$porta = 3306;
 
 $conn = new mysqli($host, $usuario, $senha, $database, $porta);
 

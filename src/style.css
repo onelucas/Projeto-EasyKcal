@@ -406,7 +406,6 @@ body {
   background-color: #388e3c;
 }
 
-/* Logo fixa no topo direito */
 .logo-fixed-top-right {
   position: absolute;
   top: 50%;
@@ -419,7 +418,26 @@ body {
   cursor: pointer;
 }
 
-/* Garante que o <body> não fique atrás do header fixo */
 body {
   padding-top: 55px;
+}
+
+.perfil-fixo-btn {
+  position: absolute;
+  top: 50%;
+  left: 20px;
+  transform: translateY(-50%);
+  background-color: #66bb6a;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 14px;
+  transition: background 0.3s ease;
+  z-index: 1001;
+}
+
+.perfil-fixo-btn:hover {
+  background-color: #388e3c;
 }

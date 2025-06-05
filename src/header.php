@@ -3,7 +3,9 @@
 $paginaAtual = basename($_SERVER['PHP_SELF']);
 ?>
 <header class="app-header">
-    <?php if ($paginaAtual !== 'painel.php'): ?>
+    <?php if ($paginaAtual === 'painel.php'): ?>
+        <a href="editarPerfil.php" class="perfil-fixo-btn">Perfil</a>
+    <?php else: ?>
         <a href="painel.php" class="menu-voltar-btn">☰ Menu</a>
     <?php endif; ?>
 

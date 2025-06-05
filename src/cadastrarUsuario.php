@@ -36,7 +36,7 @@ if (isset($_POST['nome']) && isset($_POST['email']) && isset($_POST['senha'])) {
         <img src="/easykcal/assets/img/logo_easykcal.png" alt="Logo EasyKcal" style="max-width: 200px;">
     </div>
     <div class="login-container">
-        <h2>Cadastro 📝</h2>
+        <h2>Cadastro</h2>
         <p class="subtitle">Crie sua conta gratuita</p>
 
         <?php if (!empty($erro)): ?>
